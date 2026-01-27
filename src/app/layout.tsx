@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google"; // Menggunakan font Google standar
-import "./globals.css"; // PENTING: Ini memanggil Tailwind CSS kamu
+import { Inter } from "next/font/google"; 
+import "./globals.css"; // Ini memanggil Tailwind biar web-mu berwarna
 
 const inter = Inter({ subsets: ["latin"] });
 
