@@ -3,7 +3,8 @@
 import React from 'react';
 import ElegantGold from './ElegantGold';
 import RusticLeaf from './RusticLeaf';
-import ModernClean from './ModernClean'; // Import tema baru
+import ModernClean from './ModernClean';
+import TraditionalJavanese from './TraditionalJavanese'; // Import
 
 interface InvitationData {
   selectedTheme: string;
@@ -23,8 +24,11 @@ export default function TemplateRenderer({ data, guestName = "Tamu Spesial" }: T
     case 'rustic':
       return <RusticLeaf data={data} guestName={guestName} />;
       
-    case 'modern': // Case baru
+    case 'modern':
       return <ModernClean data={data} guestName={guestName} />;
+
+    case 'javanese': // Case baru
+      return <TraditionalJavanese data={data} guestName={guestName} />;
       
     default:
       return <ElegantGold data={data} guestName={guestName} />;
