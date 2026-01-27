@@ -116,6 +116,7 @@ export default function Sidebar() {
               <SelectItem value="elegant">✨ Elegant Gold (Premium)</SelectItem>
               <SelectItem value="rustic">🌿 Rustic Leaf (Nature)</SelectItem>
               <SelectItem value="modern">◼️ Modern Clean (Mono)</SelectItem>
+               <SelectItem value="javanese">🟤 Traditional Javanese</SelectItem>
             </SelectContent>
           </Select>
         </CardContent>
