@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState } from 'react';
 
-// --- Default Data ---
+// Default Data yang lebih lengkap
 const defaultInvitationData = {
   selectedTheme: 'elegant', 
   guestName: 'Nama Tamu',
@@ -30,15 +30,12 @@ const defaultInvitationData = {
   }
 };
 
-// --- Context Definition ---
 const InvitationContext = createContext<any>(null);
 
 export const InvitationProvider = ({ children }: { children: React.ReactNode }) => {
   const [data, setData] = useState(defaultInvitationData);
 
-  // Actions
   const setSelectedTheme = (themeName: string) => setData(prev => ({ ...prev, selectedTheme: themeName }));
-  
   const updateGuest = (name: string) => setData(prev => ({ ...prev, guestName: name }));
 
   const updateCouple = (partner: 'groom' | 'bride', field: string, value: string) => {
@@ -52,9 +49,13 @@ export const InvitationProvider = ({ children }: { children: React.ReactNode }) 
     setData(prev => ({ ...prev, event: { ...prev.event, [field]: value } }));
   };
 
+  // FUNGSI BARU: Untuk update Quote dan Greeting
+  const updateContent = (field: string, value: string) => {
+    setData(prev => ({ ...prev, content: { ...prev.content, [field]: value } }));
+  };
+
   const updateImage = (field: string, file: File) => {
     if (file) {
-      // Create local preview URL
       const objectUrl = URL.createObjectURL(file);
       setData(prev => ({ 
         ...prev, 
@@ -64,22 +65,14 @@ export const InvitationProvider = ({ children }: { children: React.ReactNode }) 
   };
 
   const removeImage = (field: string) => {
-    setData(prev => ({ 
-      ...prev, 
-      images: { ...prev.images, [field]: null } 
-    }));
+    setData(prev => ({ ...prev, images: { ...prev.images, [field]: null } }));
   };
 
   return (
     <InvitationContext.Provider value={{ 
-      data, 
-      setData, 
-      setSelectedTheme, 
-      updateGuest, 
-      updateCouple, 
-      updateEvent, 
-      updateImage, 
-      removeImage 
+      data, setData, setSelectedTheme, updateGuest, 
+      updateCouple, updateEvent, updateContent, 
+      updateImage, removeImage 
     }}>
       {children}
     </InvitationContext.Provider>
