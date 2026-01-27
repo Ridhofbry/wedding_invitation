@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { 
   LayoutTemplate, User, Clock, Share2, 
-  Loader2, CheckCircle, X, Copy, ImageIcon 
+  Loader2, CheckCircle, X, Copy, ImageIcon, Heart, MessageSquare
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -24,7 +24,7 @@ import { supabase } from '@/lib/supabaseClient';
 export default function Sidebar() {
   const { 
     data, setSelectedTheme, updateGuest, updateCouple, 
-    updateEvent, updateImage, removeImage 
+    updateEvent, updateContent, updateImage, removeImage 
   } = useInvitationStore();
 
   const [isPublishing, setIsPublishing] = useState(false);
@@ -34,31 +34,24 @@ export default function Sidebar() {
   const handlePublish = async () => {
     setIsPublishing(true);
     
-    // 1. Generate Slug
     const groom = data.couple.groom.firstName || 'groom';
     const bride = data.couple.bride.firstName || 'bride';
     const year = new Date(data.event.date).getFullYear() || '2025';
     const slug = `${groom}-${bride}-${year}`.toLowerCase().replace(/[^a-z0-9]/g, '-');
     
-    // 2. Prepare Payload
-    // Note: Idealnya gambar diupload ke Storage dulu, dan URL-nya yang disimpan.
-    // Di sini kita simpan apa adanya (blob) yang hanya akan bekerja di sesi lokal, 
-    // atau URL external jika user tidak mengganti gambar.
     const invitationPayload = {
       ...data,
       publishedAt: new Date().toISOString()
     };
 
     try {
-      // 3. Upsert to Supabase
       const { error } = await supabase
         .from('invitations')
         .upsert({ slug: slug, content: invitationPayload }, { onConflict: 'slug' });
 
       if (error) throw error;
 
-      // 4. Success
-      // Ganti domain.com dengan window.location.origin di browser
+      // Ambil domain otomatis
       const origin = typeof window !== 'undefined' ? window.location.origin : 'https://undangan.com';
       setToast({ show: true, link: `${origin}/u/${slug}` });
 
@@ -101,7 +94,7 @@ export default function Sidebar() {
       {/* Header */}
       <div>
         <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Editor</h2>
-        <p className="text-slate-500 text-sm">Sesuaikan desain undanganmu.</p>
+        <p className="text-slate-500 text-sm">Custom undangan pernikahanmu.</p>
       </div>
 
       {/* 1. Theme Selection */}
@@ -142,7 +135,6 @@ export default function Sidebar() {
               onChange={(e) => updateGuest(e.target.value)} 
               placeholder="Contoh: Bpk. Jokowi" 
             />
-            <p className="text-[10px] text-slate-400">*Nama ini muncul di halaman depan.</p>
           </div>
         </CardContent>
       </Card>
@@ -155,55 +147,65 @@ export default function Sidebar() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <ImageUpload 
-            label="Cover Utama (Background)" 
-            currentImage={data.images.cover} 
-            onUpload={(f) => updateImage('cover', f)} 
-            onRemove={() => removeImage('cover')} 
-          />
+          <ImageUpload label="Cover Utama" currentImage={data.images.cover} onUpload={(f) => updateImage('cover', f)} onRemove={() => removeImage('cover')} />
           <div className="grid grid-cols-2 gap-3">
-            <ImageUpload 
-              label="Galeri 1" 
-              currentImage={data.images.gallery1} 
-              onUpload={(f) => updateImage('gallery1', f)} 
-              onRemove={() => removeImage('gallery1')} 
-            />
-            <ImageUpload 
-              label="Galeri 2" 
-              currentImage={data.images.gallery2} 
-              onUpload={(f) => updateImage('gallery2', f)} 
-              onRemove={() => removeImage('gallery2')} 
-            />
+            <ImageUpload label="Galeri 1" currentImage={data.images.gallery1} onUpload={(f) => updateImage('gallery1', f)} onRemove={() => removeImage('gallery1')} />
+            <ImageUpload label="Galeri 2" currentImage={data.images.gallery2} onUpload={(f) => updateImage('gallery2', f)} onRemove={() => removeImage('gallery2')} />
           </div>
         </CardContent>
       </Card>
 
-      {/* 4. Couple Data */}
+      {/* 4. Couple Data (SUDAH DIPERBAIKI: ADA ORANG TUA) */}
       <Card className="shadow-sm">
         <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center gap-2">
-            <User className="w-4 h-4 text-pink-500" /> Data Mempelai
+            <Heart className="w-4 h-4 text-pink-500" /> Data Mempelai
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-3">
+        <CardContent className="space-y-6">
+          
+          {/* Pria */}
+          <div className="space-y-3 border-b pb-4">
+            <h4 className="text-sm font-bold text-slate-900">Mempelai Pria</h4>
             <div className="space-y-1">
-              <Label>Pria (Panggilan)</Label>
+              <Label>Nama Panggilan</Label>
               <Input value={data.couple.groom.firstName} onChange={(e) => updateCouple('groom', 'firstName', e.target.value)} />
             </div>
             <div className="space-y-1">
-              <Label>Wanita (Panggilan)</Label>
-              <Input value={data.couple.bride.firstName} onChange={(e) => updateCouple('bride', 'firstName', e.target.value)} />
+              <Label>Nama Lengkap & Gelar</Label>
+              <Input value={data.couple.groom.fullName} onChange={(e) => updateCouple('groom', 'fullName', e.target.value)} />
+            </div>
+            <div className="space-y-1">
+              <Label>Nama Orang Tua (Putra dari...)</Label>
+              <Input 
+                value={data.couple.groom.parents} 
+                onChange={(e) => updateCouple('groom', 'parents', e.target.value)} 
+                placeholder="Bpk. Fulan & Ibu Fulanah"
+              />
             </div>
           </div>
-          <div className="space-y-1">
-            <Label>Nama Lengkap Pria</Label>
-            <Input value={data.couple.groom.fullName} onChange={(e) => updateCouple('groom', 'fullName', e.target.value)} />
+
+          {/* Wanita */}
+          <div className="space-y-3">
+            <h4 className="text-sm font-bold text-slate-900">Mempelai Wanita</h4>
+            <div className="space-y-1">
+              <Label>Nama Panggilan</Label>
+              <Input value={data.couple.bride.firstName} onChange={(e) => updateCouple('bride', 'firstName', e.target.value)} />
+            </div>
+            <div className="space-y-1">
+              <Label>Nama Lengkap & Gelar</Label>
+              <Input value={data.couple.bride.fullName} onChange={(e) => updateCouple('bride', 'fullName', e.target.value)} />
+            </div>
+            <div className="space-y-1">
+              <Label>Nama Orang Tua (Putri dari...)</Label>
+              <Input 
+                value={data.couple.bride.parents} 
+                onChange={(e) => updateCouple('bride', 'parents', e.target.value)} 
+                placeholder="Bpk. Fulan & Ibu Fulanah"
+              />
+            </div>
           </div>
-          <div className="space-y-1">
-            <Label>Nama Lengkap Wanita</Label>
-            <Input value={data.couple.bride.fullName} onChange={(e) => updateCouple('bride', 'fullName', e.target.value)} />
-          </div>
+
         </CardContent>
       </Card>
 
@@ -236,6 +238,41 @@ export default function Sidebar() {
           <div className="space-y-1">
             <Label>Alamat Lengkap</Label>
             <Input value={data.event.address} onChange={(e) => updateEvent('address', e.target.value)} />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* 6. Kutipan & Doa (BAGIAN BARU INI PENTING) */}
+      <Card className="shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
+            <MessageSquare className="w-4 h-4 text-green-500" /> Kutipan & Doa
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-1">
+            <Label>Salam Pembuka</Label>
+            <Input 
+              value={data.content.greeting} 
+              onChange={(e) => updateContent('greeting', e.target.value)} 
+              placeholder="Assalamu'alaikum Wr. Wb."
+            />
+          </div>
+          <div className="space-y-1">
+            <Label>Isi Kutipan / Ayat</Label>
+            <Input 
+              value={data.content.quote} 
+              onChange={(e) => updateContent('quote', e.target.value)} 
+              placeholder="Dan di antara tanda-tanda..."
+            />
+          </div>
+          <div className="space-y-1">
+            <Label>Sumber Kutipan</Label>
+            <Input 
+              value={data.content.quoteSource} 
+              onChange={(e) => updateContent('quoteSource', e.target.value)} 
+              placeholder="QS. Ar-Rum: 21"
+            />
           </div>
         </CardContent>
       </Card>
