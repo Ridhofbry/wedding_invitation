@@ -2,9 +2,12 @@
 
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion'; 
-import { Leaf, Calendar, MapPin, MailOpen, Music, Play, Quote } from 'lucide-react';
+import { Leaf, Calendar, MapPin, MailOpen, Music, Play, Heart } from 'lucide-react';
 
-interface TemplateProps { data: any; guestName?: string; }
+interface TemplateProps {
+  data: any; // Menggunakan any agar fleksibel menerima data baru
+  guestName?: string;
+}
 
 const formatDate = (dateString: string) => {
   if (!dateString) return '';
@@ -19,189 +22,154 @@ export default function RusticLeaf({ data, guestName }: TemplateProps) {
 
   const handleOpenInvitation = () => {
     setIsOpen(true);
-    if (audioRef.current) audioRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
+    if (audioRef.current) {
+      audioRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
+    }
   };
 
   const toggleAudio = () => {
     if (audioRef.current) {
-      if (isPlaying) audioRef.current.pause(); else audioRef.current.play();
+      if (isPlaying) audioRef.current.pause();
+      else audioRef.current.play();
       setIsPlaying(!isPlaying);
     }
   };
 
-  const fadeInUp = { hidden: { opacity: 0, y: 40 }, visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } } };
-  const leafFloat = { animate: { y: [0, -20, 0], rotate: [0, 5, -5, 0], transition: { duration: 6, repeat: Infinity, ease: "easeInOut" } } };
-
   return (
-    // Background Texture Kertas Tua
-    <div className="w-full min-h-screen bg-[#F0EFEB] text-[#4A5D44] font-serif relative overflow-x-hidden selection:bg-[#A3B18A]/50">
+    <div className="w-full min-h-screen bg-[#F7F9F5] text-[#2F3E32] font-sans relative overflow-x-hidden">
       <audio ref={audioRef} src={data.audioUrl} loop />
 
       {/* --- WELCOME OVERLAY --- */}
       <AnimatePresence>
         {!isOpen && (
           <motion.div 
-            initial={{ y: 0 }}
-            exit={{ y: "-100%", transition: { duration: 1.2, ease: [0.22, 1, 0.36, 1] } }}
-            className="fixed inset-0 z-[100] bg-[#DAD7CD] flex flex-col items-center justify-center p-6 shadow-2xl"
+            initial={{ y: 0 }} exit={{ y: "-100%", transition: { duration: 1, ease: "easeInOut" } }}
+            className="fixed inset-0 z-[100] bg-[#E1E8DE] flex flex-col items-center justify-center text-center p-6"
           >
-            {/* Background Pattern Daun */}
-            <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/leaf.png')]"></div>
-            
-            <motion.div 
-              initial={{ scale: 0.9, opacity: 0 }} 
-              animate={{ scale: 1, opacity: 1 }} 
-              transition={{ duration: 0.8 }}
-              className="bg-[#F0EFEB] p-8 md:p-12 rounded-t-[10rem] rounded-b-[2rem] border-[8px] border-[#A3B18A] shadow-xl text-center max-w-sm w-full relative overflow-hidden"
-            >
-               {/* Hiasan Gantung */}
-               <motion.div variants={leafFloat} animate="animate" className="absolute top-4 left-1/2 -translate-x-1/2">
-                  <Leaf className="w-8 h-8 text-[#588157]" />
-               </motion.div>
-
-               <div className="mt-8 space-y-6">
-                  <p className="text-xs tracking-[0.3em] uppercase text-[#A3B18A]">The Wedding Of</p>
-                  <div className="font-serif italic text-4xl text-[#344E41] space-y-2">
-                    <p>{data.couple.groom.firstName}</p>
-                    <p className="text-2xl text-[#A3B18A]">&</p>
-                    <p>{data.couple.bride.firstName}</p>
-                  </div>
-                  
-                  <div className="w-full h-[1px] bg-[#A3B18A]/50 my-6"></div>
-                  
-                  <div className="space-y-4">
-                    <p className="text-xs text-[#588157]">Kepada Yth. Bapak/Ibu/Saudara/i</p>
-                    <div className="bg-white/50 py-3 px-4 rounded-lg">
-                      <p className="text-lg font-bold text-[#344E41]">{guestName || "Tamu Undangan"}</p>
-                    </div>
-                    <button onClick={handleOpenInvitation} className="w-full py-3 bg-[#588157] text-white rounded-full text-sm hover:bg-[#3A5A40] transition-colors shadow-lg flex items-center justify-center gap-2">
-                      <MailOpen className="w-4 h-4" /> Buka Undangan
-                    </button>
-                  </div>
-               </div>
-            </motion.div>
+            <div className="bg-white p-8 rounded-[2rem] shadow-xl max-w-sm w-full border border-white/50 relative">
+                <Leaf className="w-10 h-10 text-[#7A9A74] mx-auto mb-4 opacity-60" />
+                <p className="text-xs uppercase tracking-[0.2em] text-[#5F7A5B] mb-2">The Wedding Of</p>
+                <h1 className="text-3xl font-bold text-[#2F3E32] mb-6 font-serif">{data.couple.groom.firstName} & {data.couple.bride.firstName}</h1>
+                <div className="bg-[#F1F4F0] p-4 rounded-xl mb-6">
+                  <p className="text-xs text-gray-500 mb-1">Kepada Yth.</p>
+                  <p className="text-lg font-bold text-[#4A6347] capitalize">{guestName || "Tamu Undangan"}</p>
+                </div>
+                <button onClick={handleOpenInvitation} className="w-full bg-[#5F7A5B] text-white py-3 rounded-full font-medium shadow-lg hover:bg-[#4A6347] transition-all flex items-center justify-center gap-2">
+                  <MailOpen className="w-4 h-4" /> Buka Undangan
+                </button>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* --- MAIN CONTENT --- */}
-      <div className="relative min-h-screen pb-24">
-        
-        {/* HERO SECTION */}
-        <div className="min-h-screen relative flex flex-col items-center justify-end pb-20">
-           {/* Cover Image Full Screen */}
-           <div className="absolute inset-0 z-0">
-             {data.images.cover ? (
-               <img src={data.images.cover} className="w-full h-full object-cover" />
-             ) : (
-               <div className="w-full h-full bg-[#A3B18A] flex items-center justify-center"><Leaf className="w-20 h-20 text-white/50" /></div>
-             )}
-             {/* Gradient Overlay dari bawah ke atas */}
-             <div className="absolute inset-0 bg-gradient-to-t from-[#F0EFEB] via-[#F0EFEB]/60 to-transparent"></div>
+      {/* --- CONTENT --- */}
+      <div className="relative pb-24">
+        {/* Header Image */}
+        <div className="h-[400px] w-full relative">
+           {data.images.cover ? (
+             <img src={data.images.cover} className="w-full h-full object-cover rounded-b-[3rem]" alt="Cover" />
+           ) : (
+             <div className="w-full h-full bg-[#D8E2D5] flex items-center justify-center rounded-b-[3rem]"><Leaf className="w-20 h-20 text-white opacity-50"/></div>
+           )}
+           <div className="absolute inset-0 bg-gradient-to-t from-[#F7F9F5] via-transparent to-transparent"></div>
+        </div>
+
+        {/* Title Section */}
+        <div className="text-center -mt-20 relative z-10 px-6">
+           <div className="bg-white/80 backdrop-blur-md p-8 rounded-3xl shadow-sm border border-white">
+              <p className="text-[#5F7A5B] text-sm mb-2 font-medium tracking-wide">{data.content.greeting || "Assalamu’alaikum Wr. Wb."}</p>
+              <div className="my-6 space-y-2">
+                <h1 className="text-4xl font-serif text-[#2F3E32]">{data.couple.groom.firstName}</h1>
+                <span className="text-2xl text-[#7A9A74] font-serif">&</span>
+                <h1 className="text-4xl font-serif text-[#2F3E32]">{data.couple.bride.firstName}</h1>
+              </div>
+              <p className="text-xs text-gray-400 uppercase tracking-widest">Akan Menikah</p>
+           </div>
+        </div>
+
+        {/* --- BAGIAN BARU: DATA LENGKAP MEMPELAI --- */}
+        <div className="px-6 py-12 space-y-12">
+           {/* Pria */}
+           <div className="text-center space-y-3">
+              <div className="w-32 h-32 mx-auto rounded-full overflow-hidden border-4 border-white shadow-lg bg-[#E1E8DE]">
+                 {/* Jika ada foto pria nanti bisa ditambah, skrg pakai inisial */}
+                 <div className="w-full h-full flex items-center justify-center text-4xl font-serif text-[#7A9A74]">P</div>
+              </div>
+              <h2 className="text-2xl font-serif font-bold text-[#2F3E32]">{data.couple.groom.fullName}</h2>
+              <div className="text-sm text-gray-600 leading-relaxed bg-[#E9EDE9] p-4 rounded-xl mx-auto max-w-xs">
+                <p className="font-medium text-[#5F7A5B] mb-1">Putra dari:</p>
+                <p>{data.couple.groom.parents || "Bpk... & Ibu..."}</p>
+              </div>
            </div>
 
-           {/* Content */}
-           <motion.div 
-             initial="hidden" whileInView="visible" viewport={{ once: true }}
-             className="relative z-10 text-center space-y-4 px-6 w-full max-w-lg"
-           >
-              <motion.div variants={fadeInUp} className="inline-block px-4 py-1 border border-[#588157] rounded-full bg-[#F0EFEB]/80 backdrop-blur-sm text-xs tracking-widest uppercase mb-4">
-                We Are Getting Married
-              </motion.div>
-              <motion.h1 variants={fadeInUp} className="text-6xl font-serif text-[#344E41]">{data.couple.groom.firstName}</motion.h1>
-              <motion.span variants={fadeInUp} className="block text-4xl text-[#A3B18A] font-light">&</motion.span>
-              <motion.h1 variants={fadeInUp} className="text-6xl font-serif text-[#344E41]">{data.couple.bride.firstName}</motion.h1>
-              
-              <motion.div variants={fadeInUp} className="pt-8">
-                 <div className="flex justify-center items-center gap-4 text-[#588157] font-sans font-bold tracking-widest text-sm border-t border-b border-[#A3B18A] py-3">
-                    <span>{formatDate(data.event.date)}</span>
-                 </div>
-              </motion.div>
-           </motion.div>
-        </div>
+           {/* Icon Tengah */}
+           <div className="flex justify-center"><Heart className="w-6 h-6 text-[#7A9A74] fill-current opacity-50"/></div>
 
-        {/* QUOTE SECTION */}
-        <div className="px-8 py-20 bg-[#DAD7CD]/30 text-center relative">
-           <Quote className="w-8 h-8 text-[#A3B18A] mx-auto mb-6 rotate-180" />
-           <p className="text-sm md:text-base leading-relaxed italic text-[#344E41] font-medium max-w-xl mx-auto">"{data.content.quote}"</p>
-           <p className="mt-4 text-xs font-bold uppercase tracking-widest text-[#588157]">{data.content.quoteSource}</p>
-        </div>
-
-        {/* COUPLE PROFILE */}
-        <div className="py-20 px-6 max-w-4xl mx-auto space-y-16">
-           {/* Groom Card */}
-           <motion.div initial={{ x: -50, opacity: 0 }} whileInView={{ x: 0, opacity: 1 }} transition={{ duration: 0.8 }} className="flex flex-col md:flex-row items-center gap-8 bg-white p-6 rounded-[2rem] shadow-lg border-b-8 border-[#A3B18A]">
-              <div className="w-32 h-32 bg-[#A3B18A] rounded-full flex items-center justify-center shrink-0">
-                 <span className="text-5xl text-white font-serif">P</span>
+           {/* Wanita */}
+           <div className="text-center space-y-3">
+              <div className="w-32 h-32 mx-auto rounded-full overflow-hidden border-4 border-white shadow-lg bg-[#E1E8DE]">
+                 <div className="w-full h-full flex items-center justify-center text-4xl font-serif text-[#7A9A74]">W</div>
               </div>
-              <div className="text-center md:text-left">
-                 <h3 className="text-3xl text-[#344E41] font-bold mb-2">{data.couple.groom.fullName}</h3>
-                 <p className="text-sm text-[#588157]">Putra dari Bpk/Ibu:</p>
-                 <p className="text-lg text-[#344E41]">{data.couple.groom.parents || "Nama Orang Tua"}</p>
-              </div>
-           </motion.div>
-
-           {/* Bride Card */}
-           <motion.div initial={{ x: 50, opacity: 0 }} whileInView={{ x: 0, opacity: 1 }} transition={{ duration: 0.8 }} className="flex flex-col md:flex-row-reverse items-center gap-8 bg-white p-6 rounded-[2rem] shadow-lg border-b-8 border-[#A3B18A]">
-              <div className="w-32 h-32 bg-[#A3B18A] rounded-full flex items-center justify-center shrink-0">
-                 <span className="text-5xl text-white font-serif">W</span>
-              </div>
-              <div className="text-center md:text-right">
-                 <h3 className="text-3xl text-[#344E41] font-bold mb-2">{data.couple.bride.fullName}</h3>
-                 <p className="text-sm text-[#588157]">Putri dari Bpk/Ibu:</p>
-                 <p className="text-lg text-[#344E41]">{data.couple.bride.parents || "Nama Orang Tua"}</p>
-              </div>
-           </motion.div>
-        </div>
-
-        {/* EVENT DETAILS */}
-        <div className="py-12 px-4">
-           <div className="max-w-md mx-auto bg-[#344E41] text-[#F0EFEB] rounded-3xl p-10 text-center shadow-2xl relative overflow-hidden">
-              {/* Pattern Overlay */}
-              <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/wood-pattern.png')]"></div>
-              
-              <div className="relative z-10 space-y-8">
-                 <h2 className="text-2xl font-serif border-b border-[#A3B18A] pb-4 inline-block">Waktu & Lokasi</h2>
-                 
-                 <div className="space-y-2">
-                    <Calendar className="w-8 h-8 mx-auto text-[#A3B18A]" />
-                    <p className="text-xl font-bold">{formatDate(data.event.date)}</p>
-                    <p className="opacity-80">{data.event.timeStart} - {data.event.timeEnd} WIB</p>
-                 </div>
-
-                 <div className="space-y-2 pt-4">
-                    <MapPin className="w-8 h-8 mx-auto text-[#A3B18A]" />
-                    <p className="text-xl font-bold">{data.event.locationName}</p>
-                    <p className="opacity-80 text-sm px-4">{data.event.address}</p>
-                 </div>
-
-                 <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(data.event.locationName)}`} target="_blank" className="inline-block mt-4 bg-[#A3B18A] text-[#344E41] px-8 py-3 rounded-full font-bold hover:bg-[#DAD7CD] transition-colors">
-                    Lihat Peta
-                 </a>
+              <h2 className="text-2xl font-serif font-bold text-[#2F3E32]">{data.couple.bride.fullName}</h2>
+              <div className="text-sm text-gray-600 leading-relaxed bg-[#E9EDE9] p-4 rounded-xl mx-auto max-w-xs">
+                <p className="font-medium text-[#5F7A5B] mb-1">Putri dari:</p>
+                <p>{data.couple.bride.parents || "Bpk... & Ibu..."}</p>
               </div>
            </div>
         </div>
 
-        {/* GALLERY */}
-        {(data.images.gallery1 || data.images.gallery2) && (
-          <div className="py-16 px-6">
-             <h2 className="text-center text-2xl font-serif text-[#344E41] mb-8">Galeri Bahagia</h2>
-             <div className="grid grid-cols-2 gap-4 max-w-4xl mx-auto">
-               {data.images.gallery1 && <div className="rounded-2xl overflow-hidden shadow-lg aspect-square"><img src={data.images.gallery1} className="w-full h-full object-cover hover:scale-110 transition-transform duration-700" /></div>}
-               {data.images.gallery2 && <div className="rounded-2xl overflow-hidden shadow-lg aspect-square mt-8"><img src={data.images.gallery2} className="w-full h-full object-cover hover:scale-110 transition-transform duration-700" /></div>}
+        {/* Event Details */}
+        <div className="px-4">
+          <div className="bg-[#4A6347] text-white p-8 rounded-3xl text-center shadow-lg relative overflow-hidden">
+             <div className="absolute top-0 left-0 w-full h-full opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
+             <div className="relative z-10 space-y-6">
+                <h3 className="text-xl font-serif mb-6 border-b border-white/20 pb-4 inline-block">Akad & Resepsi</h3>
+                
+                <div className="flex flex-col items-center gap-2">
+                   <Calendar className="w-6 h-6 text-[#AECCA8]"/>
+                   <p className="text-xl font-bold">{formatDate(data.event.date)}</p>
+                   <p className="text-sm opacity-80">{data.event.timeStart} - {data.event.timeEnd} WIB</p>
+                </div>
+
+                <div className="flex flex-col items-center gap-2 mt-6">
+                   <MapPin className="w-6 h-6 text-[#AECCA8]"/>
+                   <p className="text-lg font-semibold leading-tight">{data.event.locationName}</p>
+                   <p className="text-xs opacity-70 max-w-[200px] mx-auto">{data.event.address}</p>
+                </div>
+
+                <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(data.event.locationName)}`} target="_blank" className="inline-block mt-4 px-6 py-2 bg-white text-[#4A6347] rounded-full text-xs font-bold hover:bg-[#E1E8DE] transition">
+                  Lihat Lokasi
+                </a>
              </div>
           </div>
+        </div>
+
+        {/* Quote Section */}
+        <div className="p-10 text-center space-y-4">
+           <p className="text-sm italic text-gray-600 leading-loose">"{data.content.quote}"</p>
+           <p className="text-xs font-bold text-[#5F7A5B] uppercase tracking-widest">{data.content.quoteSource}</p>
+        </div>
+
+        {/* Gallery */}
+        {(data.images.gallery1 || data.images.gallery2) && (
+          <div className="px-6 pb-12">
+            <h3 className="text-center text-[#5F7A5B] font-bold uppercase text-sm mb-6 tracking-widest">Galeri Kami</h3>
+            <div className="grid grid-cols-2 gap-3">
+               {data.images.gallery1 && <img src={data.images.gallery1} className="rounded-2xl w-full h-40 object-cover shadow-sm" />}
+               {data.images.gallery2 && <img src={data.images.gallery2} className="rounded-2xl w-full h-40 object-cover shadow-sm mt-4" />}
+            </div>
+          </div>
         )}
-
       </div>
 
-      {/* AUDIO CONTROL */}
-      <div className="fixed bottom-6 right-6 z-50">
-         <button onClick={toggleAudio} className={`w-12 h-12 rounded-full bg-[#344E41] text-[#A3B18A] flex items-center justify-center shadow-lg border-2 border-[#A3B18A] ${isPlaying ? 'animate-spin-slow' : ''}`}>
-            {isPlaying ? <Music className="w-5 h-5" /> : <Play className="w-5 h-5 ml-1" />}
-         </button>
-      </div>
-
+      {/* Floating Audio */}
+      {isOpen && (
+        <div className="fixed bottom-6 right-6 z-[90]">
+          <button onClick={toggleAudio} className={`w-12 h-12 flex items-center justify-center rounded-full bg-[#5F7A5B] text-white shadow-lg ${isPlaying ? 'animate-spin-slow' : ''}`}>
+             {isPlaying ? <Music className="w-5 h-5" /> : <Play className="w-5 h-5 ml-1" />}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
