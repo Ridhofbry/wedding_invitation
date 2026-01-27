@@ -3,11 +3,11 @@
 import React from 'react';
 import ElegantGold from './ElegantGold';
 import RusticLeaf from './RusticLeaf';
+import ModernClean from './ModernClean'; // Import tema baru
 
-// Kita buat interface yang lebih longgar agar tidak konflik
 interface InvitationData {
   selectedTheme: string;
-  [key: string]: any; // Ini membolehkan properti apa saja masuk
+  [key: string]: any; 
 }
 
 interface TemplateRendererProps {
@@ -16,19 +16,17 @@ interface TemplateRendererProps {
 }
 
 export default function TemplateRenderer({ data, guestName = "Tamu Spesial" }: TemplateRendererProps) {
-  
-  // LOGIC: Kita gunakan casting 'as any' saat memanggil komponen anak.
-  // Ini memberitahu TypeScript: "Sudah, percaya saja sama saya, datanya lengkap kok!"
-  
   switch (data.selectedTheme) {
     case 'elegant':
-      return <ElegantGold data={data as any} guestName={guestName} />;
+      return <ElegantGold data={data} guestName={guestName} />;
     
     case 'rustic':
-      return <RusticLeaf data={data as any} guestName={guestName} />;
+      return <RusticLeaf data={data} guestName={guestName} />;
+      
+    case 'modern': // Case baru
+      return <ModernClean data={data} guestName={guestName} />;
       
     default:
-      // Default ke Elegant Gold jika tema tidak dikenali
-      return <ElegantGold data={data as any} guestName={guestName} />;
+      return <ElegantGold data={data} guestName={guestName} />;
   }
 }
