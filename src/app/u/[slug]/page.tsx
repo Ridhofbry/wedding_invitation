@@ -3,11 +3,14 @@ import TemplateRenderer from "@/components/templates/TemplateRenderer";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 
-// --- PERBAIKAN UTAMA: MATIKAN CACHE ---
-// Ini memaksa Vercel untuk selalu mengambil data terbaru dari Supabase setiap kali link dibuka.
+// --- [PENTING] CODE ANTI-CACHE ---
+// Baris ini memaksa Vercel untuk SELALU mengambil data terbaru dari Supabase.
+// Tanpa ini, kalau kamu ganti tema, Vercel akan tetap menampilkan tema lama (cache).
 export const revalidate = 0;
 export const dynamic = 'force-dynamic';
 
+// --- FITUR SEO ---
+// Judul tab browser akan otomatis berubah sesuai nama pengantin
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const { data } = await supabase
     .from("invitations")
@@ -24,17 +27,22 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   };
 }
 
+// --- HALAMAN UTAMA ---
 export default async function GuestPage({ params }: { params: { slug: string } }) {
+  // 1. Ambil data undangan dari Supabase berdasarkan SLUG di URL
   const { data: invitation, error } = await supabase
     .from("invitations")
     .select("content")
     .eq("slug", params.slug)
     .single();
 
+  // 2. Jika data tidak ketemu atau error, tampilkan halaman 404
   if (error || !invitation) {
     notFound();
   }
 
+  // 3. Render Undangan
+  // Kita kirim data ke 'TemplateRenderer' yang akan memilihkan desain (Jawa/Modern/dll)
   return (
     <main className="w-full min-h-screen bg-slate-50">
       <TemplateRenderer data={invitation.content} />
