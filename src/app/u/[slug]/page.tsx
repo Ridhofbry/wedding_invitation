@@ -3,7 +3,11 @@ import TemplateRenderer from "@/components/templates/TemplateRenderer";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 
-// Fitur SEO: Judul halaman otomatis berubah sesuai nama pengantin
+// --- PERBAIKAN UTAMA: MATIKAN CACHE ---
+// Ini memaksa Vercel untuk selalu mengambil data terbaru dari Supabase setiap kali link dibuka.
+export const revalidate = 0;
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const { data } = await supabase
     .from("invitations")
@@ -21,19 +25,16 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 }
 
 export default async function GuestPage({ params }: { params: { slug: string } }) {
-  // 1. Ambil data dari Supabase berdasarkan SLUG di URL
   const { data: invitation, error } = await supabase
     .from("invitations")
     .select("content")
     .eq("slug", params.slug)
     .single();
 
-  // 2. Jika data tidak ada / error, tampilkan 404
   if (error || !invitation) {
     notFound();
   }
 
-  // 3. Render Undangan (Hanya Template, tanpa Editor Sidebar)
   return (
     <main className="w-full min-h-screen bg-slate-50">
       <TemplateRenderer data={invitation.content} />
